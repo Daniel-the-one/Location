@@ -65,6 +65,12 @@ class AuthService extends ChangeNotifier {
     await _openSession(res);
   }
 
+  /// Recharge le profil (ex. après validation de l'identité).
+  Future<void> refreshUser() async {
+    user = AppUser.fromJson(await api.get('/auth/me/'));
+    notifyListeners();
+  }
+
   Future<void> requestPasswordReset(String email) =>
       api.post('/auth/password-reset/', {'email': email.trim()});
 

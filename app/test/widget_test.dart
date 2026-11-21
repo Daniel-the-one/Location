@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _userJson = {
@@ -20,8 +19,7 @@ const _userJson = {
   'is_identity_verified': false,
 };
 
-Widget _app(AuthService auth) =>
-    ChangeNotifierProvider.value(value: auth, child: const EssiviviApp());
+Widget _app(AuthService auth) => AppProviders(auth: auth, child: const EssiviviApp());
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -36,12 +34,12 @@ void main() {
 
   testWidgets('connexion réussie : accueil propriétaire', (tester) async {
     final client = MockClient((req) async {
-      expect(req.url.path, endsWith('/auth/login/'));
-      return http.Response(
-        jsonEncode({'access': 'a', 'refresh': 'r', 'user': _userJson}),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
+      // Après connexion, l'accueil propriétaire charge la liste de ses biens.
+      final body = req.url.path.endsWith('/owner/properties/')
+          ? {'results': []}
+          : {'access': 'a', 'refresh': 'r', 'user': _userJson};
+      expect(req.url.path, anyOf(endsWith('/auth/login/'), endsWith('/owner/properties/')));
+      return http.Response(jsonEncode(body), 200, headers: {'content-type': 'application/json'});
     });
     final auth = AuthService(ApiClient(httpClient: client));
     await auth.restore();

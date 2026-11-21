@@ -5,10 +5,34 @@ import 'core/api_client.dart';
 import 'features/auth/auth_service.dart';
 import 'features/auth/login_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/owner/owner_api.dart';
+import 'features/owner/photo_picker.dart';
 
 void main() {
-  final auth = AuthService(ApiClient())..restore();
-  runApp(ChangeNotifierProvider.value(value: auth, child: const EssiviviApp()));
+  final api = ApiClient();
+  final auth = AuthService(api)..restore();
+  runApp(AppProviders(auth: auth, child: const EssiviviApp()));
+}
+
+/// Services partagés. Les tests passent leurs propres instances (client HTTP simulé…).
+class AppProviders extends StatelessWidget {
+  const AppProviders({super.key, required this.auth, required this.child, this.picker});
+
+  final AuthService auth;
+  final PhotoPicker? picker;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: auth),
+        Provider(create: (_) => OwnerApi(auth.api)),
+        Provider(create: (_) => picker ?? PhotoPicker()),
+      ],
+      child: child,
+    );
+  }
 }
 
 class EssiviviApp extends StatelessWidget {

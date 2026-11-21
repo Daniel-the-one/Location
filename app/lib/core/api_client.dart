@@ -16,6 +16,15 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+/// Un fichier à téléverser : nom du champ attendu par l'API, octets, nom de fichier.
+class UploadFile {
+  const UploadFile(this.field, this.bytes, this.filename);
+
+  final String field;
+  final List<int> bytes;
+  final String filename;
+}
+
 /// Client HTTP JSON. Ajoute le jeton d'accès quand il est connu.
 class ApiClient {
   ApiClient({http.Client? httpClient, this.baseUrl = apiBaseUrl})
@@ -44,6 +53,28 @@ class ApiClient {
       _decode(await _send(
           () => _http.patch(_uri(path), headers: _headers, body: jsonEncode(body))));
 
+  Future<Map<String, dynamic>> delete(String path) async =>
+      _decode(await _send(() => _http.delete(_uri(path), headers: _headers)));
+
+  /// Envoi multipart (photos, pièce d'identité). Fonctionne sur le web comme sur Android
+  /// car les fichiers sont passés en octets.
+  Future<Map<String, dynamic>> upload(
+    String path,
+    List<UploadFile> files, {
+    Map<String, String> fields = const {},
+  }) async {
+    final request = http.MultipartRequest('POST', _uri(path))
+      ..headers.addAll({
+        'Accept': 'application/json',
+        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+      })
+      ..fields.addAll(fields);
+    for (final f in files) {
+      request.files.add(http.MultipartFile.fromBytes(f.field, f.bytes, filename: f.filename));
+    }
+    return _decode(await _send(() async => http.Response.fromStream(await _http.send(request))));
+  }
+
   Future<http.Response> _send(Future<http.Response> Function() call) async {
     try {
       return await call();
@@ -65,6 +96,10 @@ class ApiClient {
     if (body is! Map) return ApiException(status, 'Erreur serveur ($status).');
     final fields = <String, String>{};
     String? detail;
+    if (body['errors'] is List) {
+      // Règles métier : toutes les raisons, une par ligne.
+      return ApiException(status, (body['errors'] as List).join('\n'));
+    }
     body.forEach((key, value) {
       final msg = value is List ? value.join(' ') : value.toString();
       if (key == 'detail' || key == 'non_field_errors') {

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../auth/auth_service.dart';
 import '../auth/user.dart';
+import '../owner/identity_screen.dart';
+import '../owner/my_properties_screen.dart';
 
 /// Accueil après connexion : les onglets changent selon le rôle du compte.
 /// Les écrans réels (annonces, assistant, messagerie…) remplaceront les placeholders.
@@ -45,9 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tab.label)),
-      body: tab.label == 'Profil'
-          ? _ProfileTab(user: user, onLogout: auth.logout)
-          : Center(child: Text('${tab.label} — à venir')),
+      body: switch (tab.label) {
+        'Profil' => _ProfileTab(user: user, onLogout: auth.logout),
+        'Mes biens' => const MyPropertiesScreen(),
+        _ => Center(child: Text('${tab.label} — à venir')),
+      },
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
@@ -82,11 +86,15 @@ class _ProfileTab extends StatelessWidget {
           isThreeLine: true,
         ),
         if (user.role == UserRole.owner && !user.isIdentityVerified)
-          const Card(
+          Card(
             child: ListTile(
-              leading: Icon(Icons.badge_outlined),
-              title: Text('Identité non vérifiée'),
-              subtitle: Text('Téléversez une pièce d\'identité pour pouvoir publier vos annonces.'),
+              leading: const Icon(Icons.badge_outlined),
+              title: const Text('Identité non vérifiée'),
+              subtitle: const Text('Envoyez une pièce d\'identité pour pouvoir publier vos annonces.'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const IdentityScreen()),
+              ),
             ),
           ),
         const SizedBox(height: 24),
