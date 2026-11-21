@@ -61,6 +61,8 @@ class Property(models.Model):
     )
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     rejection_reason = models.CharField(max_length=255, blank=True)
+    # Une suspension décidée par l'admin ne peut pas être levée par le propriétaire.
+    suspended_by_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
