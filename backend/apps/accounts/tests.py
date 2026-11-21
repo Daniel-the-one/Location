@@ -174,6 +174,23 @@ class IdentityVerificationTests(APITestCase):
         res = self.client.post(reverse("identity"), {"document": self.upload()}, format="multipart")
         self.assertEqual(res.status_code, 403)
 
+    def test_document_view_admin_only_and_sandboxed(self):
+        owner = make_user(email="o@example.com", role=User.Role.OWNER)
+        v = IdentityVerification.objects.create(user=owner, document=self.upload())
+        url = reverse("identity-document", args=[v.pk])
+
+        self.client.force_login(owner)
+        self.assertEqual(self.client.get(url).status_code, 302)  # renvoyé vers la connexion admin
+
+        admin = User.objects.create_superuser(email="admin@example.com", password=PASSWORD)
+        self.client.force_login(admin)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res["Content-Type"], "application/pdf")
+        self.assertEqual(res["X-Content-Type-Options"], "nosniff")
+        self.assertIn("sandbox", res["Content-Security-Policy"])
+        res.close()
+
     def test_is_identity_verified_after_approval(self):
         owner = make_user(email="o@example.com", role=User.Role.OWNER)
         IdentityVerification.objects.create(
