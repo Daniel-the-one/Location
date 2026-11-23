@@ -54,8 +54,13 @@ class Command(BaseCommand):
             raise CommandError("Compte admin introuvable ou mot de passe incorrect.")
 
         host = next((h for h in settings.ALLOWED_HOSTS if h and "*" not in h), "testserver")
-        visitor = APIClient(HTTP_HOST=host, secure=True)
-        admin_client = APIClient(HTTP_HOST=host, secure=True)
+        # En production, SECURE_PROXY_SSL_HEADER prime sur `secure=True` : sans
+        # X-Forwarded-Proto, Django renvoie 301 et la recette échoue à tort.
+        common = dict(HTTP_HOST=host, secure=True)
+        if not settings.DEBUG:
+            common["HTTP_X_FORWARDED_PROTO"] = "https"
+        visitor = APIClient(**common)
+        admin_client = APIClient(**common)
 
         self.stdout.write("Recette de modération — hôte de test : {0}".format(host))
         response = admin_client.post(
