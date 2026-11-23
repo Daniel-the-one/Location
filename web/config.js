@@ -14,4 +14,4 @@
  * utilise POST /api/declarations/ ; la console utilise /api/admin/* avec un
  * jeton JWT conservé en sessionStorage, jamais dans une URL ni localStorage.
  */
-window.ESSIVIVI_API_URL = "";
+window.ESSIVIVI_API_URL = "https://essivivi-api-1zk8.onrender.com";
