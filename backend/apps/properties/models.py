@@ -24,10 +24,18 @@ class Property(models.Model):
         REJECTED = "rejected", "Refusé"
         SUSPENDED = "suspended", "Suspendu"
 
+    class Source(models.TextChoices):
+        APP = "app", "Application"
+        WEB = "web", "Déclaration web"
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="properties"
     )
     property_type = models.CharField("type", max_length=12, choices=Type.choices)
+    # Origine du dossier : une déclaration web n'a pas encore de pièces ni de panorama.
+    source = models.CharField(
+        "origine", max_length=8, choices=Source.choices, default=Source.APP
+    )
     title = models.CharField("titre", max_length=150)
     description = models.TextField(blank=True)
     address = models.CharField("adresse", max_length=255)

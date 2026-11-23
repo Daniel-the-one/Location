@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "apps.properties",
     "apps.exchanges",
     "apps.payments",
+    "apps.moderation",
 ]
 
 MIDDLEWARE = [
@@ -92,7 +93,7 @@ TIME_ZONE = "Africa/Lome"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -152,5 +153,12 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@essivivi.local")
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
+    # Le health check Render arrive en HTTP interne : ne pas le rediriger en HTTPS.
+    SECURE_REDIRECT_EXEMPT = [r"^api/health/$"]
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+# Base Postgres sur Render : django-environ traduit postgres:// en backend psycopg2.
+if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+    DATABASES["default"].setdefault("OPTIONS", {}).setdefault("sslmode", "require")

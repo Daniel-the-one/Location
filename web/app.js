@@ -260,10 +260,10 @@
           footEl.textContent = 'Annonces chargées depuis l’API Essivivi.';
         })
         .catch(function () {
-          // Repli explicite : on ne prétend jamais afficher du live.
-          render(filterSample());
-          statusEl.textContent = 'Aperçu de démonstration — API momentanément indisponible.';
-          footEl.textContent = 'Les annonces réelles s’affichent ici dès que l’API Essivivi est connectée. Aucune donnée n’est inventée.';
+          // Dès que l’API est configurée, on ne présente jamais l’aperçu comme du live.
+          list.innerHTML = '<p class="listing-empty">Les annonces ne peuvent pas être chargées pour le moment. Revenez dans un instant.</p>';
+          statusEl.textContent = 'API momentanément indisponible.';
+          footEl.textContent = 'Aucune annonce de démonstration n’est affichée quand le service est connecté.';
         });
     }
 
@@ -277,8 +277,13 @@
       fetchListings(params);
     });
 
-    render(filterSample());
-    if (apiBase) fetchListings(new URLSearchParams());
+    if (apiBase) {
+      list.innerHTML = '<p class="listing-empty">Chargement des annonces publiées…</p>';
+      statusEl.textContent = 'Chargement…';
+      fetchListings(new URLSearchParams());
+    } else {
+      render(filterSample());
+    }
   })();
 
   /* ---------------------------------------------------------------------- *

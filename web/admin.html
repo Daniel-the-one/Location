@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1F6F5C">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Console de modération Essivivi, réservée au développeur.">
+  <title>Console de modération — Essivivi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script src="admin.js" defer></script>
+</head>
+<body class="app-page admin-page">
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="index.html" aria-label="Essivivi, retour à l’accueil">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 15.5 16 4l13 11.5"/>
+            <path d="M6.5 14.5V28h19V14.5"/>
+            <path d="M13 28v-8h6v8"/>
+            <circle cx="16" cy="14" r="2.4"/>
+          </svg>
+        </span>
+        <span class="brand-word">essivivi</span>
+      </a>
+      <nav class="site-nav" aria-label="Navigation">
+        <a href="index.html#logements">Voir le site</a>
+        <a href="declarer.html">Déclarer un bien</a>
+      </nav>
+      <button class="admin-logout btn btn-ghost btn-small" id="logout" type="button" hidden>Déconnexion</button>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation-admin" aria-label="Ouvrir le menu">
+        <span></span><span></span>
+      </button>
+      <nav class="site-nav mobile-nav" id="navigation-admin" aria-label="Navigation mobile">
+        <a href="index.html#logements">Voir le site</a>
+        <a href="declarer.html">Déclarer un bien</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu" class="shell app-main">
+    <section id="login-panel" class="login-card">
+      <p class="owner-kicker">Accès réservé</p>
+      <h1>Console de modération.</h1>
+      <p>Espace du développeur : déclarations reçues, pièces d’identité et publication des biens. Aucune donnée n’est accessible sans connexion.</p>
+      <form id="login-form" class="app-form" novalidate>
+        <div class="form-grid">
+          <div class="field field-wide">
+            <label for="admin-email">Adresse e-mail</label>
+            <input id="admin-email" name="email" type="email" autocomplete="username" required>
+          </div>
+          <div class="field field-wide">
+            <label for="admin-password">Mot de passe</label>
+            <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+        </div>
+        <div class="app-form-actions">
+          <button class="btn btn-solid" type="submit">Se connecter</button>
+          <p class="form-note" id="login-note" role="status"></p>
+        </div>
+      </form>
+    </section>
+
+    <section id="console" hidden>
+      <div class="console-head">
+        <div>
+          <p class="owner-kicker">Modération</p>
+          <h1>Tableau de bord.</h1>
+          <p class="console-sub" id="console-sub">Chaque publication passe par cette console.</p>
+        </div>
+        <button class="btn btn-ghost btn-small" id="refresh" type="button">Actualiser</button>
+      </div>
+
+      <div class="stats" id="stats" aria-live="polite"></div>
+
+      <nav class="tabs" aria-label="Sections de la console">
+        <button class="tab is-active" type="button" data-tab="properties" aria-selected="true">Biens <span id="tab-properties-count"></span></button>
+        <button class="tab" type="button" data-tab="identities" aria-selected="false">Identités <span id="tab-identities-count"></span></button>
+      </nav>
+
+      <section class="console-panel" id="panel-properties">
+        <div class="console-filters">
+          <label for="property-status">Statut</label>
+          <select id="property-status">
+            <option value="pending">En attente</option>
+            <option value="published">Publiés</option>
+            <option value="suspended">Suspendus</option>
+            <option value="rejected">Refusés</option>
+            <option value="draft">Brouillons</option>
+            <option value="">Tous</option>
+          </select>
+          <label for="property-source">Origine</label>
+          <select id="property-source">
+            <option value="">Toutes</option>
+            <option value="web">Déclaration web</option>
+            <option value="app">Application</option>
+          </select>
+        </div>
+        <div class="card-list" id="property-list" aria-live="polite"></div>
+      </section>
+
+      <section class="console-panel" id="panel-identities" hidden>
+        <div class="console-filters">
+          <label for="identity-status">Statut</label>
+          <select id="identity-status">
+            <option value="pending">En attente</option>
+            <option value="approved">Vérifiées</option>
+            <option value="rejected">Refusées</option>
+            <option value="">Toutes</option>
+          </select>
+        </div>
+        <div class="card-list" id="identity-list" aria-live="polite"></div>
+      </section>
+
+      <p class="console-note" id="console-note" role="status"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer app-footer">
+    <div class="shell footer-bottom">
+      <p>Essivivi · Console privée. Les pièces d’identité ne sont jamais exposées publiquement.</p>
+      <p><a href="index.html">Retour au site</a></p>
+    </div>
+  </footer>
+</body>
+</html>

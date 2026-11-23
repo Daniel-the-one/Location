@@ -1,7 +1,15 @@
 # Render Blueprint — Essivivi
-# Déploie le site vitrine statique. Le backend Django peut être ajouté ensuite
-# comme Web Service (voir la section commentée en fin de fichier).
+# Vitrine statique + API Django + PostgreSQL.
 # https://render.com/docs/blueprint-spec
+#
+# Le compte admin est amorcé au démarrage par `manage.py ensure_admin` :
+# ESSIVIVI_ADMIN_EMAIL / ESSIVIVI_ADMIN_PASSWORD sont générés ici sans valeur en clair
+# dans le dépôt. Le mot de passe généré se lit dans le Dashboard Render
+# (service essivivi-api > Environment), jamais dans le chat ni dans un fichier suivi.
+#
+# ATTENTION : le plan Postgres `free` est supprimé par Render 30 jours après sa création.
+# Avant cette échéance, basculer vers un plan payant OU passer la base sur un autre
+# hébergeur. Aucun plan payant n'est activé sans accord explicite.
 
 services:
   - type: web
@@ -23,25 +31,37 @@ services:
         name: Cache-Control
         value: public, max-age=86400
 
-# Backend Django (à activer quand la base de production est choisie) :
-#
-#   - type: web
-#     name: essivivi-api
-#     runtime: python
-#     plan: free
-#     rootDir: backend
-#     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-#     startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
-#     envVars:
-#       - key: DEBUG
-#         value: "false"
-#       - key: SECRET_KEY
-#         generateValue: true
-#       - key: DATABASE_URL
-#         sync: false
-#       - key: ALLOWED_HOSTS
-#         value: essivivi-api.onrender.com
-#       - key: CORS_ALLOWED_ORIGINS
-#         sync: false
-#       - key: FRONTEND_URL
-#         sync: false
+  - type: web
+    name: essivivi-api
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements-render.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && python manage.py ensure_admin && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/health/
+    envVars:
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: essivivi-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: essivivi-api.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://essivivi-vitrine-1zk8.onrender.com
+      - key: FRONTEND_URL
+        value: https://essivivi-vitrine-1zk8.onrender.com
+      - key: ESSIVIVI_ADMIN_EMAIL
+        value: daniellewaguena05@gmail.com
+      - key: ESSIVIVI_ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: essivivi-db
+    plan: free
+    region: oregon
+    databaseName: essivivi

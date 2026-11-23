@@ -189,7 +189,9 @@ class IdentityVerificationTests(APITestCase):
         self.assertEqual(res["Content-Type"], "application/pdf")
         self.assertEqual(res["X-Content-Type-Options"], "nosniff")
         self.assertIn("sandbox", res["Content-Security-Policy"])
-        res.close()
+        # Consommer le flux sans appeler res.close() : close() envoie request_finished,
+        # ce qui ferme la connexion dans la transaction du TestCase et casse les tests suivants.
+        self.assertTrue(b"".join(res.streaming_content))
 
     def test_is_identity_verified_after_approval(self):
         owner = make_user(email="o@example.com", role=User.Role.OWNER)

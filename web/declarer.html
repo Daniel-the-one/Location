@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1F6F5C">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Déclarez votre bien à louer au Togo. Votre annonce sera publiée seulement après vérification de votre identité et validation par l’équipe Essivivi.">
+  <title>Déclarer un bien — Essivivi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script src="declarer.js" defer></script>
+</head>
+<body class="app-page">
+  <a class="skip-link" href="#contenu">Aller au formulaire</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="index.html" aria-label="Essivivi, retour à l’accueil">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 15.5 16 4l13 11.5"/>
+            <path d="M6.5 14.5V28h19V14.5"/>
+            <path d="M13 28v-8h6v8"/>
+            <circle cx="16" cy="14" r="2.4"/>
+          </svg>
+        </span>
+        <span class="brand-word">essivivi</span>
+      </a>
+      <nav class="site-nav" aria-label="Navigation">
+        <a href="index.html#logements">Logements</a>
+        <a href="index.html#proprietaires">Propriétaires</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <a class="header-cta" href="admin.html">Espace développeur</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation-declarer" aria-label="Ouvrir le menu">
+        <span></span><span></span>
+      </button>
+      <nav class="site-nav mobile-nav" id="navigation-declarer" aria-label="Navigation mobile">
+        <a href="index.html#logements">Logements</a>
+        <a href="index.html#proprietaires">Propriétaires</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="admin.html">Espace développeur</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu" class="shell app-main">
+    <div class="app-intro">
+      <p class="owner-kicker">Espace propriétaire</p>
+      <h1>Déclarez votre bien.</h1>
+      <p>Quelques minutes suffisent. Votre annonce reste invisible sur le site jusqu’à ce que l’équipe Essivivi ait vérifié votre identité et validé le logement. Vous recevez un numéro de dossier à la fin.</p>
+    </div>
+
+    <div id="declaration-form-panel">
+      <form id="declaration-form" class="app-form" novalidate enctype="multipart/form-data">
+        <div class="form-notice" id="api-notice" role="status" hidden></div>
+
+        <fieldset class="form-section">
+          <legend><span class="legend-no">01</span> Vos coordonnées</legend>
+          <p class="form-section-hint">Elles servent à vous contacter pendant la modération. Elles ne sont jamais affichées publiquement.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="first-name">Prénom</label>
+              <input id="first-name" name="first_name" type="text" autocomplete="given-name" maxlength="150" required>
+              <p class="field-error" id="error-first_name" hidden></p>
+            </div>
+            <div class="field">
+              <label for="last-name">Nom</label>
+              <input id="last-name" name="last_name" type="text" autocomplete="family-name" maxlength="150" required>
+              <p class="field-error" id="error-last_name" hidden></p>
+            </div>
+            <div class="field">
+              <label for="owner-email">Adresse e-mail</label>
+              <input id="owner-email" name="email" type="email" autocomplete="email" maxlength="254" required>
+              <p class="field-error" id="error-email" hidden></p>
+            </div>
+            <div class="field">
+              <label for="owner-phone">Téléphone <span class="optional">facultatif</span></label>
+              <input id="owner-phone" name="phone" type="tel" autocomplete="tel" maxlength="20" placeholder="+228 90 00 00 00">
+              <p class="field-error" id="error-phone" hidden></p>
+            </div>
+            <div class="field">
+              <label for="owner-password">Mot de passe</label>
+              <input id="owner-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+              <p class="field-hint">8 caractères minimum. Il vous servira à vous connecter dans l’application.</p>
+              <p class="field-error" id="error-password" hidden></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-section">
+          <legend><span class="legend-no">02</span> Le logement</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="property-title">Titre de l’annonce</label>
+              <input id="property-title" name="title" type="text" maxlength="150" required placeholder="Appartement deux pièces, Akosombo">
+              <p class="field-error" id="error-title" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-type">Type de bien</label>
+              <select id="property-type" name="property_type" required>
+                <option value="">Choisir…</option>
+                <option value="studio">Studio</option>
+                <option value="room">Chambre</option>
+                <option value="apartment">Appartement</option>
+                <option value="house">Maison</option>
+                <option value="villa">Villa</option>
+              </select>
+              <p class="field-error" id="error-property_type" hidden></p>
+            </div>
+            <div class="field field-wide">
+              <label for="property-address">Adresse</label>
+              <input id="property-address" name="address" type="text" maxlength="255" required>
+              <p class="field-error" id="error-address" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-neighborhood">Quartier</label>
+              <input id="property-neighborhood" name="neighborhood" type="text" maxlength="100" required>
+              <p class="field-error" id="error-neighborhood" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-city">Ville</label>
+              <input id="property-city" name="city" type="text" maxlength="100" required placeholder="Lomé">
+              <p class="field-error" id="error-city" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-rent">Loyer mensuel (FCFA)</label>
+              <input id="property-rent" name="rent" type="number" min="1000" max="100000000" step="1" required>
+              <p class="field-error" id="error-rent" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-charges">Charges (FCFA) <span class="optional">facultatif</span></label>
+              <input id="property-charges" name="charges" type="number" min="0" max="100000000" step="1" value="0">
+              <p class="field-error" id="error-charges" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-deposit">Caution (FCFA) <span class="optional">facultatif</span></label>
+              <input id="property-deposit" name="deposit" type="number" min="0" max="100000000" step="1" value="0">
+              <p class="field-error" id="error-deposit" hidden></p>
+            </div>
+            <div class="field">
+              <label for="property-rooms">Nombre de pièces</label>
+              <input id="property-rooms" name="rooms_count" type="number" min="1" max="30" step="1" value="1" required>
+              <p class="field-error" id="error-rooms_count" hidden></p>
+            </div>
+            <div class="field field-wide">
+              <label for="property-description">Description <span class="optional">facultatif</span></label>
+              <textarea id="property-description" name="description" rows="4" maxlength="4000"></textarea>
+              <p class="field-error" id="error-description" hidden></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-section">
+          <legend><span class="legend-no">03</span> Justificatifs</legend>
+          <p class="form-section-hint">La pièce d’identité est stockée dans un espace privé. Elle n’est jamais servie comme fichier public et seul l’administrateur peut la consulter.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="entrance-photo">Photo d’entrée du bien</label>
+              <input id="entrance-photo" name="entrance_photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+              <p class="field-hint">JPG, PNG ou WebP, 8 Mo maximum. La photo est redimensionnée côté serveur.</p>
+              <p class="field-error" id="error-entrance_photo" hidden></p>
+            </div>
+            <div class="field">
+              <label for="identity-document">Pièce d’identité</label>
+              <input id="identity-document" name="identity_document" type="file" accept=".pdf,image/jpeg,image/png,image/webp" required>
+              <p class="field-hint">PDF, JPG, PNG ou WebP, 8 Mo maximum.</p>
+              <p class="field-error" id="error-identity_document" hidden></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="consent-row">
+          <label class="check-line">
+            <input id="consent" name="consent" type="checkbox" required>
+            <span>J’atteste être propriétaire ou mandaté pour déclarer ce bien, et j’accepte que mes informations soient utilisées pour sa modération.</span>
+          </label>
+          <p class="field-error" id="error-consent" hidden></p>
+        </div>
+
+        <div class="honeypot" aria-hidden="true">
+          <label for="website">Site web</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="app-form-actions">
+          <button class="btn btn-solid" id="submit-declaration" type="submit">Envoyer ma déclaration</button>
+          <p class="form-note" id="declaration-note" role="status"></p>
+        </div>
+      </form>
+    </div>
+
+    <section class="receipt" id="receipt" hidden aria-live="polite">
+      <span class="receipt-mark" aria-hidden="true">✓</span>
+      <h2>Déclaration reçue.</h2>
+      <p id="receipt-text"></p>
+      <p class="receipt-dossier">Votre numéro de dossier : <strong id="receipt-id"></strong></p>
+      <p class="form-note">Conservez ce numéro. Votre annonce n’est pas encore visible : elle sera publiée seulement après vérification de votre identité et validation du bien.</p>
+      <div class="app-form-actions">
+        <a class="btn btn-ghost" href="index.html">Retour au site</a>
+        <button class="btn btn-solid btn-small" type="button" id="new-declaration">Déclarer un autre bien</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer app-footer">
+    <div class="shell footer-bottom">
+      <p>Essivivi · Déclaration de bien soumise à modération. Aucune publication automatique.</p>
+      <p><a href="index.html">Retour à l’accueil</a></p>
+    </div>
+  </footer>
+</body>
+</html>
